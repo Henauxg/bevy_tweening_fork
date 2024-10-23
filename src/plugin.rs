@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
-#[cfg(feature = "bevy_asset")]
-use crate::{tweenable::AssetTarget, AssetAnimator};
+// #[cfg(feature = "bevy_asset")]
+// use crate::{tweenable::AssetTarget, AssetAnimator};
 use crate::{tweenable::ComponentTarget, Animator, AnimatorState, TweenCompleted};
 
 /// Plugin to add systems related to tweening of common components and assets.
@@ -45,7 +45,7 @@ impl Plugin for TweeningPlugin {
         #[cfg(feature = "bevy_ui")]
         app.add_systems(
             Update,
-            component_animator_system::<Style>.in_set(AnimationSystem::AnimationUpdate),
+            component_animator_system::<Node>.in_set(AnimationSystem::AnimationUpdate),
         );
         #[cfg(feature = "bevy_ui")]
         app.add_systems(
@@ -59,11 +59,11 @@ impl Plugin for TweeningPlugin {
             component_animator_system::<Sprite>.in_set(AnimationSystem::AnimationUpdate),
         );
 
-        #[cfg(all(feature = "bevy_sprite", feature = "bevy_asset"))]
-        app.add_systems(
-            Update,
-            asset_animator_system::<ColorMaterial>.in_set(AnimationSystem::AnimationUpdate),
-        );
+        // #[cfg(all(feature = "bevy_sprite", feature = "bevy_asset"))]
+        // app.add_systems(
+        //     Update,
+        //     asset_animator_system::<ColorMaterial>.in_set(AnimationSystem::AnimationUpdate),
+        // );
 
         #[cfg(feature = "bevy_text")]
         app.add_systems(
@@ -106,39 +106,39 @@ pub fn component_animator_system<T: Component>(
     }
 }
 
-/// Animator system for assets.
-///
-/// This system ticks all [`AssetAnimator<T>`] components to animate their
-/// associated asset.
-///
-/// This requires the `bevy_asset` feature (enabled by default).
-#[cfg(feature = "bevy_asset")]
-pub fn asset_animator_system<T: Asset>(
-    time: Res<Time>,
-    mut assets: ResMut<Assets<T>>,
-    mut query: Query<(Entity, &Handle<T>, &mut AssetAnimator<T>)>,
-    events: ResMut<Events<TweenCompleted>>,
-    mut commands: Commands,
-) {
-    let mut events: Mut<Events<TweenCompleted>> = events.into();
-    let mut target = AssetTarget::new(assets.reborrow());
-    for (entity, handle, mut animator) in query.iter_mut() {
-        if animator.state != AnimatorState::Paused {
-            target.handle = handle.clone();
-            if !target.is_valid() {
-                continue;
-            }
-            let speed = animator.speed();
-            animator.tweenable_mut().tick(
-                time.delta().mul_f32(speed),
-                &mut target,
-                entity,
-                &mut events,
-                &mut commands,
-            );
-        }
-    }
-}
+// /// Animator system for assets.
+// ///
+// /// This system ticks all [`AssetAnimator<T>`] components to animate their
+// /// associated asset.
+// ///
+// /// This requires the `bevy_asset` feature (enabled by default).
+// #[cfg(feature = "bevy_asset")]
+// pub fn asset_animator_system<T: Asset>(
+//     time: Res<Time>,
+//     mut assets: ResMut<Assets<T>>,
+//     mut query: Query<(Entity, &Handle<T>, &mut AssetAnimator<T>)>,
+//     events: ResMut<Events<TweenCompleted>>,
+//     mut commands: Commands,
+// ) {
+//     let mut events: Mut<Events<TweenCompleted>> = events.into();
+//     let mut target = AssetTarget::new(assets.reborrow());
+//     for (entity, handle, mut animator) in query.iter_mut() {
+//         if animator.state != AnimatorState::Paused {
+//             target.handle = handle.clone();
+//             if !target.is_valid() {
+//                 continue;
+//             }
+//             let speed = animator.speed();
+//             animator.tweenable_mut().tick(
+//                 time.delta().mul_f32(speed),
+//                 &mut target,
+//                 entity,
+//                 &mut events,
+//                 &mut commands,
+//             );
+//         }
+//     }
+// }
 
 #[cfg(test)]
 mod tests {
@@ -219,7 +219,7 @@ mod tests {
         /// Get the emitted event count since last tick.
         pub fn event_count(&self) -> usize {
             let events = self.world.resource::<Events<TweenCompleted>>();
-            events.get_reader().len(events)
+            events.get_cursor().len(events)
         }
     }
 

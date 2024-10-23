@@ -211,8 +211,8 @@ use interpolation::Ease as IEase;
 pub use interpolation::{EaseFunction, Lerp};
 
 pub use lens::Lens;
-#[cfg(feature = "bevy_asset")]
-pub use plugin::asset_animator_system;
+// #[cfg(feature = "bevy_asset")]
+// pub use plugin::asset_animator_system;
 pub use plugin::{component_animator_system, AnimationSystem, TweeningPlugin};
 #[cfg(feature = "bevy_asset")]
 pub use tweenable::AssetTarget;
